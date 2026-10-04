@@ -6,13 +6,12 @@ import os                           # Para armar la ruta del archivo
 import tkinter as tk                # La librería que dibuja las ventanas
 from tkinter import messagebox      # Para las ventanitas de preguntas y errores
 from tkinter import filedialog      # Para las ventanas de "Guardar como" y "Abrir"
-import sys                          # Para saber si la app corre como .exe y leer cómo se abrió
+import sys                          # Para cerrar esta copia si ya hay otra abierta
 import socket                       # Para que una segunda copia de la app le avise a la primera
 import threading                    # Para escuchar el atajo de teclado sin congelar las notas
 import queue                        # Para pasar avisos desde esos "hilos" a las notas de forma segura
 import ctypes                       # Para usar funciones de Windows (el atajo de teclado)
 import ctypes.wintypes              # Tipos de datos de Windows que necesita ctypes
-import winreg                       # Para registrar la app en el inicio de Windows
 
 # Colores que aparecen en el menú de colores.
 # Para agregar un color, solo súmalo a esta lista.
@@ -25,19 +24,13 @@ AVISO_TITULO = "Escribe un título..."
 # y sigue hasta el próximo espacio o salto de línea
 PATRON_LINK = re.compile(r"(https?://\S+|www\.\S+)")
 
-# Las notas guardadas con 💾 usan la extensión .nota (por dentro es JSON)
+# Las notas guardadas con el botón Guardar usan la extensión .nota (por dentro es JSON)
 EXTENSION = ".nota"
 TIPOS_ARCHIVO = [("Nota adhesiva", "*.nota"), ("Todos los archivos", "*.*")]
 
 # Atajo de teclado para crear una nota desde cualquier parte: Ctrl + Alt + N
 # Para cambiar la letra, cambia "N" por otra (siempre en mayúscula)
 TECLA_RAPIDA = "N"
-
-# Inicio con Windows: nombre con el que aparece la app en "Aplicaciones de arranque"
-NOMBRE_APP = "Notas-adhesivas"
-CLAVE_INICIO = r"Software\Microsoft\Windows\CurrentVersion\Run"
-# Cuando Windows abre la app al prender el PC, le agrega esto para que parta escondida
-ARGUMENTO_INICIO = "--inicio"
 
 # Puerto interno que usa la app para saber si ya hay una copia abierta
 PUERTO_INTERNO = 47231
@@ -82,7 +75,7 @@ class Nota:
         self.color = datos.get("color", COLORES[0])
         self.menu_colores = None   # La ventanita de colores (None = cerrada)
         self.minimizada = False
-        # Dónde se guardó esta nota con 💾 (None = nunca se ha guardado)
+        # Dónde se guardó esta nota con Guardar (None = nunca se ha guardado)
         self.ruta = datos.get("ruta")
 
         # Posición y tamaño. Los guardamos nosotros mismos para tenerlos
@@ -102,12 +95,12 @@ class Nota:
         self.barra = tk.Frame(self.ventana, height=28)
         self.barra.pack(fill="x")  # Ocupa todo el ancho
 
-        # Botones: 📂, 💾, + y ● a la izquierda; ✕ y — a la derecha
-        # 📂 se lo pide a la App, porque abrir puede crear una nota nueva
+        # Botones: Abrir, Guardar, + y ● a la izquierda; ✕ y — a la derecha
+        # Abrir se lo pide a la App, porque abrir puede crear una nota nueva
         # (le pasa esta nota para que, si está vacía, la use en vez de crear otra)
-        self.btn_abrir = self.crear_boton("📂", lambda: app.abrir_nota_guardada(self))
+        self.btn_abrir = self.crear_boton("Abrir", lambda: app.abrir_nota_guardada(self))
         self.btn_abrir.pack(side="left")
-        self.btn_guardar = self.crear_boton("💾", self.guardar_en_archivo)
+        self.btn_guardar = self.crear_boton("Guardar", self.guardar_en_archivo)
         self.btn_guardar.pack(side="left")
         self.btn_nueva = self.crear_boton("+", app.nueva_nota)   # Nueva nota: lo hace la App
         self.btn_nueva.pack(side="left")
@@ -185,8 +178,11 @@ class Nota:
 
     def crear_boton(self, simbolo, accion):
         #Crea un botón plano para la barra. Así no repetimos el mismo código en cada botón
-        return tk.Button(self.barra, text=simbolo, command=accion, bd=0,
-                         relief="flat", font=("Segoe UI", 11), width=2, cursor="hand2")
+        #Los símbolos (+, ●, ✕, —) usan un ancho fijo; las palabras (Abrir, Guardar) el que necesiten
+        ancho = 2 if len(simbolo) == 1 else 0
+        #highlightthickness=0 asegura que no aparezca un borde gris alrededor de los botones
+        return tk.Button(self.barra, text=simbolo, command=accion, bd=0, highlightthickness=0,
+                         relief="flat", font=("Segoe UI", 10), width=ancho, padx=6, cursor="hand2")
 
     #Colores
     def aplicar_color(self):
@@ -456,7 +452,7 @@ class Nota:
         self.texto.insert("1.0", guardado.get("texto", ""))
         self.marcar_links()
 
-        #Color y ruta (así el 💾 vuelve a guardar en el mismo archivo)
+        #Color y ruta (así Guardar vuelve a guardar en el mismo archivo)
         self.color = guardado.get("color", COLORES[0])
         self.aplicar_color()
         self.ruta = ruta
@@ -471,9 +467,9 @@ class Nota:
 # Tiene la lista de notas y se encarga de lo que afecta a todas:
 #   - crear notas nuevas
 #   - abrir notas guardadas
-#   - iniciar con Windows y escuchar el atajo de teclado
+#   - escuchar el atajo de teclado
 #   - cerrar el programa
-# Las notas solo se guardan cuando apretas 💾 (no hay guardado automático)
+# Las notas solo se guardan cuando apretas Guardar (no hay guardado automático)
 # ---------------------------------------------------------------------
 class App:
 
@@ -483,18 +479,13 @@ class App:
         self.notas = []       # Aquí se guardan todas las notas abiertas
         self.avisos = queue.Queue()  # Avisos que llegan del atajo o de otra copia de la app
 
-        # Se registra para iniciar con Windows (solo cuando corre como .exe)
-        self.activar_inicio_con_windows()
-
         # Escucha el atajo de teclado y a otras copias de la app, cada uno en su propio "hilo"
         threading.Thread(target=self.escuchar_atajo, daemon=True).start()
         threading.Thread(target=self.escuchar_otras_copias, args=(servidor,), daemon=True).start()
         self.raiz.after(200, self.revisar_avisos)
 
-        # Si la abrió Windows al prender el PC, parte escondida (se abre con el atajo)
-        # Si la abriste tú, parte con una nota vacía
-        if ARGUMENTO_INICIO not in sys.argv:
-            self.nueva_nota()
+        # Siempre parte con una nota vacía
+        self.nueva_nota()
 
     def posicion_nueva(self):
         #Devuelve dónde poner una nota nueva: un poco corrida para que no tape a las otras
@@ -510,7 +501,7 @@ class App:
 
     def abrir_nota_guardada(self, nota_actual):
         #Abre un archivo .nota
-        #Si la nota desde donde se apretó 📂 está vacía, lo carga ahí; si no, crea una nota nueva
+        #Si la nota desde donde se apretó Abrir está vacía, lo carga ahí; si no, crea una nota nueva
         ventana_padre = nota_actual.ventana
         ruta = filedialog.askopenfilename(parent=ventana_padre, title="Abrir nota guardada",
                                           filetypes=TIPOS_ARCHIVO)
@@ -535,32 +526,13 @@ class App:
             "titulo": guardado.get("titulo", ""),
             "texto": guardado.get("texto", ""),
             "color": guardado.get("color", COLORES[0]),
-            "ruta": ruta,  # Así el 💾 vuelve a guardar en el mismo archivo
+            "ruta": ruta,  # Así Guardar vuelve a guardar en el mismo archivo
             "x": x,
             "y": y,
         })
         self.notas.append(nota)
 
-    #Inicio con Windows y atajo de teclado
-    def activar_inicio_con_windows(self):
-        #Agrega la app a la lista de programas que Windows abre al prender el PC
-        #Solo funciona con el .exe: al probar con "python notas_adhesivas.py" no hace nada
-        if not getattr(sys, "frozen", False):
-            return
-        comando = f'"{sys.executable}" {ARGUMENTO_INICIO}'  # sys.executable = ruta del .exe
-        try:
-            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, CLAVE_INICIO, 0,
-                                winreg.KEY_READ | winreg.KEY_SET_VALUE) as clave:
-                try:
-                    actual = winreg.QueryValueEx(clave, NOMBRE_APP)[0]
-                except FileNotFoundError:
-                    actual = None
-                #Solo escribe si no estaba o si moviste el .exe a otra carpeta
-                if actual != comando:
-                    winreg.SetValueEx(clave, NOMBRE_APP, 0, winreg.REG_SZ, comando)
-        except OSError:
-            pass  # Si Windows no deja, la app funciona igual (solo no inicia sola)
-
+    #Atajo de teclado
     def escuchar_atajo(self):
         #Registra Ctrl + Alt + TECLA_RAPIDA en Windows y espera a que lo presiones
         #Corre en su propio hilo, por eso no toca las notas: solo deja un aviso
@@ -607,10 +579,10 @@ class App:
 
     #Abrir y cerrar
     def confirmar_salir(self, ventana_padre):
-        #Si alguna nota tiene contenido, pregunta antes de cerrar (lo no guardado con 💾 se pierde)
+        #Si alguna nota tiene contenido, pregunta antes de cerrar (lo no guardado con Guardar se pierde)
         if any(not nota.esta_vacia() for nota in self.notas):
             if not messagebox.askyesno("Notas-adhesivas",
-                                       "¿Salir de Notas-adhesivas?\nLo que no guardaste con 💾 se perderá.",
+                                       "¿Salir de Notas-adhesivas?\nLo que no guardaste con el botón Guardar se perderá.",
                                        parent=ventana_padre):
                 return  # Dijiste que no: no hace nada
         self.salir()
