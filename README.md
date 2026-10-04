@@ -1,4 +1,4 @@
-# Actualiza el README con la información de la v1.1
+# README con la información de la v1.1
 Mi propia app de notas adhesivas para el escritorio, hecha en Python con Tkinter 
 Notas sin borde siempre visibles, con título, colores, links clicables y guardado en archivos .nota. 
 Se abre con Ctrl + Alt + N e inicia sola con el PC. 
