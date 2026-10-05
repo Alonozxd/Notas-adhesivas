@@ -4,27 +4,27 @@ la razon principal para hacer este proyecto es que sea una mejora al block de no
 y permita crear notas rápidas o extensas como se ven en las imágenes y con el tiempo mejorar el proyecto
 
 # Dispositivos donde esta disponible
-Windows = Funcional
-Linux = Experimental ya que presenta algunas fallas
+* Windows = Funcional
+* Linux = Experimental ya que presenta algunas fallas
 
 ## Funcionalidades Actuales
 
-1-Atajo rapido con control + alt + n se abre una nota de forma rapida 
-2-Permite el guardado y carga de archivos
-3-El minimizado no es total si no que queda en una barra pequeña para comodidad
-4-Tiene seguimiento de links funcionales
++ 1-Atajo rapido con control + alt + n se abre una nota de forma rapida 
++ 2-Permite el guardado y carga de archivos
++ 3-El minimizado no es total si no que queda en una barra pequeña para comodidad
++ 4-Tiene seguimiento de links funcionales
 
 ## Funcionalidades para el futuro
 
-1-Permitir el pegar imagenes de pantallazo
-2-Mejor configuracion
-3-Iniciar junto al sistema para solo iniciar con el atajo
++ 1-Permitir el pegar imagenes de pantallazo
++ 2-Mejor configuracion
++ 3-Iniciar junto al sistema para solo iniciar con el atajo
 
 ## Mejoras pensadas
 
-1-Simplificar un poco la barra de las notitas y sus opciones
-2-Agregar más opciones de colores
-3-Personalicacion de texto
++ 1-Simplificar un poco la barra de las notitas y sus opciones
++ 2-Agregar más opciones de colores
++ 3-Personalicacion de texto
 
 
 # Imágenes del proyecto en Windows
