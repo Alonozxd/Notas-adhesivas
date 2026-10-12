@@ -47,7 +47,7 @@ Ideas para las siguientes versiones:
 - [ ] **Iniciar con Windows** (como opción en Configuración).
 - [ ] Poner la **versión de Linux** al día con las novedades de la 1.3.
 
-- [ ] ## 3. Cómo funciona y con qué está hecha
+- [ ] Cómo funciona y con qué está hecha
 
 La app es de **código abierto**: todo el código está en este repositorio y cualquiera puede revisarlo.
 
