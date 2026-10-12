@@ -66,19 +66,19 @@ La app es de **código abierto**: todo el código está en este repositorio y cu
 ### 🔒 Privacidad y seguridad
 
 - **No se conecta a internet.** Solo abre tu navegador cuando haces clic en un link de una nota.
-- **Para saber si ya está abierta**, la app usa una conexión interna de tu PC (`127.0.0.1`), que no sale a internet. Así, si la abres dos veces, crea una nota nueva en vez de abrir otra copia.
+- **Para saber si ya está abierta**, la app usa una conexión interna de tu PC (`127.0.0.1`), que no sale a internet. Así, si la abres dos veces, crea una nota nueva en vez de abrir otra copia
 - **Todo se guarda en tu PC:**
   - Las pestañas fijadas y la configuración van en `%APPDATA%\Notas-adhesivas` (`fijadas.json` y `config.json`).
-  - Las notas que guardas van en archivos `.nota` donde tú elijas.
-  - Todos son archivos de texto que puedes abrir y leer con cualquier editor.
-- **No pide permisos de administrador** para instalarse.
-- Windows puede mostrar el aviso **"Windows protegió su PC"** porque la app no tiene firma digital, ya que el certificado tiene un costo anual para abrirla, elige **Más información → Ejecutar de todas formas**.
+  - Las notas que guardas van en archivos `.nota` donde tú elijas
+  - Todos son archivos de texto que puedes abrir y leer con cualquier editor
+- **No pide permisos de administrador** para instalarse
+- Windows puede mostrar el aviso **"Windows protegió su PC"** porque la app no tiene firma digital, ya que el certificado tiene un costo anual para abrirla, elige **Más información → Ejecutar de todas formas**
 
 - ## Descarga e instalación
 
-1- Entra a **[Releases]**
-2- Ábrelo y sigue los pasos. Si aparece "Windows protegió su PC", elige **Más información → Ejecutar de todas formas**.
-3- Listo: la app queda en el menú Inicio (y en el Escritorio, si marcaste esa opción).
+1- Entra a **[Releases](https://github.com/Alonozxd/Notas-adhesivas/releases)**, descarga **`Instalador-Notas-adhesivas.zip`**
+2- Ábrelo y sigue los pasos si aparece "Windows protegió su PC", elige **Más información → Ejecutar de todas formas**
+3- Listo: la app queda en el menú Inicio (y en el Escritorio, si marcaste esa opción)
 
 - ### 🖱️ Botones
 
