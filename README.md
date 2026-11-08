@@ -8,21 +8,7 @@ Es una app de notas adhesivas (post-its) para el escritorio de Windows cada nota
 
 Cada nota tiene **título**, **pestañas** (varias notas dentro de una misma ventana), **color** y **tipo de letra**, y se puede mover, agrandar, minimizar o maximizar.
 
-### ¿Qué tiene que no tenga el Bloc de notas de Windows?
 
-El Bloc de notas sirve para escribir texto, pero no está pensado para tener notas a la vista. Esto es lo que agrega Notas-adhesivas:
-
-| | Bloc de notas | Notas-adhesivas |
-|---|:---:|:---:|
-| Queda siempre encima de las otras ventanas | ❌ | ✅ |
-| Un color distinto para cada nota | ❌ | ✅ |
-| Elegir tipo y tamaño de letra para partes del texto | ❌ | ✅ |
-| Minimizar a solo una barra con el título | ❌ | ✅ |
-| Crear una nota desde cualquier programa con un atajo | ❌ | ✅ |
-| Ocultar y mostrar todas las notas con un atajo | ❌ | ✅ |
-| Notas transparentes para que no tapen lo de atrás | ❌ | ✅ |
-
-## Ventajas y próximas mejoras
 
 ### Ventajas
 
